@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs/server";
 import { db } from "@/lib";
-import { files } from "@/lib/schema";
+import { files, folders } from "@/lib/schema";
 import { eq, and } from "drizzle-orm";
 import ImageKit from "imagekit";
 
@@ -23,14 +23,20 @@ export async function DELETE() {
       .from(files)
       .where(and(eq(files.ownerId, userId), eq(files.isTrashed, true)));
 
-    if (trashedFiles.length === 0) {
+    const trashedFolders = await db
+      .select()
+      .from(folders)
+      .where(and(eq(folders.ownerId, userId), eq(folders.isTrashed, true)));
+
+    if (trashedFiles.length === 0 && trashedFolders.length === 0) {
       return NextResponse.json(
-        { message: "No files in trash" },
+        { message: "No files or folders in trash" },
         { status: 200 }
       );
     }
 
-    const deletePromises = trashedFiles.map(async (file) => {
+
+    const deleteFilePromises = trashedFiles.map(async (file) => {
       if (file.imageKitId) {
         try {
           await imagekit.deleteFile(file.imageKitId);
@@ -39,17 +45,38 @@ export async function DELETE() {
         }
       }
     });
-
-    await Promise.allSettled(deletePromises);
+    await Promise.allSettled(deleteFilePromises);
 
     const deletedFiles = await db
       .delete(files)
       .where(and(eq(files.ownerId, userId), eq(files.isTrashed, true)))
       .returning();
 
+
+    // Recursively delete child folders of trashed folders
+    const deletedFolders = [];
+    const trashedFolderIds = trashedFolders.map(f => f.id);
+    const foldersToDelete = [...trashedFolderIds];
+    while (foldersToDelete.length > 0) {
+      // Delete folders with these ids
+      const deleted = await db
+        .delete(folders)
+        .where(and(eq(folders.ownerId, userId), eq(folders.isTrashed, true), eq(folders.id, foldersToDelete[0])))
+        .returning();
+      deletedFolders.push(...deleted);
+
+      // Find child folders of the just deleted folder
+      const childFolders = await db
+        .select()
+        .from(folders)
+        .where(and(eq(folders.ownerId, userId), eq(folders.isTrashed, true), eq(folders.parentId, foldersToDelete[0])));
+      foldersToDelete.shift();
+      foldersToDelete.push(...childFolders.map(f => f.id));
+    }
+
     return NextResponse.json({
       success: true,
-      message: `Successfully deleted ${deletedFiles.length} files from trash`,
+      message: `Successfully deleted ${deletedFiles.length} files and ${deletedFolders.length} folders from trash`,
     });
   } catch (error) {
     console.error("Error emptying trash:", error);
