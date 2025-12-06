@@ -1,11 +1,18 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs/server";
+import ImageKit from "imagekit";
 import { db } from "@/lib";
 import { files } from "@/lib/schema";
 import { eq, and } from "drizzle-orm";
 
-export async function PATCH(
-  request: NextRequest,
+const imagekit = new ImageKit({
+  publicKey: process.env.NEXT_PUBLIC_IMAGEKIT_PUBLIC_KEY || "",
+  privateKey: process.env.IMAGEKIT_PRIVATE_KEY || "",
+  urlEndpoint: process.env.NEXT_PUBLIC_IMAGEKIT_URL_ENDPOINT || "",
+});
+
+export async function DELETE(
+  _request: NextRequest,
   props: { params: Promise<{ fileId: string }> }
 ) {
   try {
@@ -23,35 +30,40 @@ export async function PATCH(
       );
     }
 
-
     const [file] = await db
       .select()
       .from(files)
       .where(
         and(
-          eq(files.id, fileId), 
-          eq(files.ownerId, userId)));
+            eq(files.id, fileId), 
+            eq(files.ownerId, userId)));
 
     if (!file) {
       return NextResponse.json({ error: "File not found" }, { status: 404 });
     }
 
-    const updatedFiles = await db
-      .update(files)
-      .set({ isStarred: !file.isStarred })
+    if (!file.imageKitId) {
+      return NextResponse.json(
+        { error: "File cannot be deleted: missing ImageKit id" },
+        { status: 400 }
+      );
+    }
+
+    await imagekit.deleteFile(file.imageKitId);
+
+    const deleted = await db
+      .delete(files)
       .where(
         and(
-          eq(files.id, fileId), 
-          eq(files.ownerId, userId)))
+            eq(files.id, fileId), 
+            eq(files.ownerId, userId)))
       .returning();
 
-    const updatedFile = updatedFiles[0];
-
-    return NextResponse.json(updatedFile);
+    return NextResponse.json({ file: deleted[0] });
   } catch (error) {
-    console.error("Error starring file:", error);
+    console.error("Error deleting file:", error);
     return NextResponse.json(
-      { error: "Failed to update file" },
+      { error: "Failed to delete file" },
       { status: 500 }
     );
   }

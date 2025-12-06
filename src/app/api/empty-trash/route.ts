@@ -21,12 +21,18 @@ export async function DELETE() {
     const trashedFiles = await db
       .select()
       .from(files)
-      .where(and(eq(files.ownerId, userId), eq(files.isTrashed, true)));
+      .where(
+        and(
+          eq(files.ownerId, userId), 
+          eq(files.isTrashed, true)));
 
     const trashedFolders = await db
       .select()
       .from(folders)
-      .where(and(eq(folders.ownerId, userId), eq(folders.isTrashed, true)));
+      .where(
+        and(
+          eq(folders.ownerId, userId), 
+          eq(folders.isTrashed, true)));
 
     if (trashedFiles.length === 0 && trashedFolders.length === 0) {
       return NextResponse.json(
@@ -49,27 +55,34 @@ export async function DELETE() {
 
     const deletedFiles = await db
       .delete(files)
-      .where(and(eq(files.ownerId, userId), eq(files.isTrashed, true)))
+      .where(
+        and(
+          eq(files.ownerId, userId), 
+          eq(files.isTrashed, true)))
       .returning();
 
-
-    // Recursively delete child folders of trashed folders
     const deletedFolders = [];
     const trashedFolderIds = trashedFolders.map(f => f.id);
     const foldersToDelete = [...trashedFolderIds];
     while (foldersToDelete.length > 0) {
-      // Delete folders with these ids
       const deleted = await db
         .delete(folders)
-        .where(and(eq(folders.ownerId, userId), eq(folders.isTrashed, true), eq(folders.id, foldersToDelete[0])))
+        .where(
+          and(
+            eq(folders.ownerId, userId), 
+            eq(folders.isTrashed, true), 
+            eq(folders.id, foldersToDelete[0])))
         .returning();
       deletedFolders.push(...deleted);
 
-      // Find child folders of the just deleted folder
       const childFolders = await db
         .select()
         .from(folders)
-        .where(and(eq(folders.ownerId, userId), eq(folders.isTrashed, true), eq(folders.parentId, foldersToDelete[0])));
+        .where(
+          and(
+            eq(folders.ownerId, userId), 
+            eq(folders.isTrashed, true), 
+            eq(folders.parentId, foldersToDelete[0])));
       foldersToDelete.shift();
       foldersToDelete.push(...childFolders.map(f => f.id));
     }

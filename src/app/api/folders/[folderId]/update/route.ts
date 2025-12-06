@@ -18,7 +18,6 @@ export async function PATCH(request: NextRequest) {
     if (typeof reqWithParams.params === "object" && reqWithParams.params?.folderId) {
       folderId = reqWithParams.params.folderId;
     } else {
-      // fallback: extract from url
       const match = request.url.match(/\/folders\/([^\/]+)\/update/);
       if (match) folderId = match[1];
     }

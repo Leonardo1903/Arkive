@@ -22,7 +22,10 @@ export async function PATCH(request: NextRequest, props: { params: Promise<{ fol
     const [folder] = await db
       .select()
       .from(folders)
-      .where(and(eq(folders.id, folderId), eq(folders.ownerId, userId)));
+      .where(
+        and(
+          eq(folders.id, folderId), 
+          eq(folders.ownerId, userId)));
 
     if (!folder) {
       return NextResponse.json({ error: "Folder not found" }, { status: 404 });
@@ -31,7 +34,10 @@ export async function PATCH(request: NextRequest, props: { params: Promise<{ fol
     const updatedFolders = await db
       .update(folders)
       .set({ isTrashed: !folder.isTrashed })
-      .where(and(eq(folders.id, folderId), eq(folders.ownerId, userId)))
+      .where(
+        and(
+          eq(folders.id, folderId), 
+          eq(folders.ownerId, userId)))
       .returning();
 
     const updatedFolder = updatedFolders[0];

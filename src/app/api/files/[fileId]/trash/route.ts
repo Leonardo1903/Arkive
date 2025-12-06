@@ -26,7 +26,10 @@ export async function PATCH(
     const [file] = await db
       .select()
       .from(files)
-      .where(and(eq(files.id, fileId), eq(files.ownerId, userId)));
+      .where(
+        and(
+          eq(files.id, fileId), 
+          eq(files.ownerId, userId)));
 
     if (!file) {
       return NextResponse.json({ error: "File not found" }, { status: 404 });
@@ -35,7 +38,10 @@ export async function PATCH(
     const updatedFiles = await db
       .update(files)
       .set({ isTrashed: !file.isTrashed })
-      .where(and(eq(files.id, fileId), eq(files.ownerId, userId)))
+      .where(
+        and(
+          eq(files.id, fileId), 
+          eq(files.ownerId, userId)))
       .returning();
 
     const updatedFile = updatedFiles[0];
