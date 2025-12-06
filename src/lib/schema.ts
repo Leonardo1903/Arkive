@@ -18,7 +18,8 @@ export const folders = pgTable("folders", {
   name: text("name").notNull(),
 
   isTrashed: boolean("is_trashed").default(false).notNull(),
-
+  isStarred: boolean("is_starred").default(false).notNull(),
+  
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });

@@ -15,6 +15,13 @@
       "when": 1764322026002,
       "tag": "0001_high_korvac",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1765009527359,
+      "tag": "0002_grey_risque",
+      "breakpoints": true
     }
   ]
 }
