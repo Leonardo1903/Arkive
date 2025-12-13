@@ -21,7 +21,15 @@ export async function GET(request: NextRequest) {
     const searchTerm = `%${query}%`;
 
     const searchedFiles = await db
-      .select()
+      .select({
+        id: files.id,
+        name: files.name,
+        folderId: files.folderId,
+        type: files.type,
+        isStarred: files.isStarred,
+        createdAt: files.createdAt,
+        url: files.url,
+      })
       .from(files)
       .where(
         and(
@@ -32,7 +40,14 @@ export async function GET(request: NextRequest) {
       );
 
     const searchedFolders = await db
-      .select()
+      .select({
+        id: folders.id,
+        name: folders.name,
+        parentId: folders.parentId,
+        path: folders.path,
+        isStarred: folders.isStarred,
+        createdAt: folders.createdAt,
+      })
       .from(folders)
       .where(
         and(
