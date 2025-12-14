@@ -14,10 +14,29 @@ export async function GET(request: NextRequest) {
     const searchParams = request.nextUrl.searchParams;
     const queryOwnerId = searchParams.get("ownerId");
     const parentId = searchParams.get("parentId");
+    const folderId = searchParams.get("folderId");
 
     if (!queryOwnerId || queryOwnerId !== userId) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
+
+    if (folderId) {
+      const [folder] = await db
+        .select()
+        .from(folders)
+        .where(
+          and(
+            eq(folders.ownerId, userId), 
+            eq(folders.id, folderId))
+        );
+
+      if (!folder) {
+        return NextResponse.json({ error: "Folder not found" }, { status: 404 });
+      }
+
+      return NextResponse.json(folder);
+    }
+
     let userFolders;
     if (parentId) {
       userFolders = await db
@@ -26,16 +45,17 @@ export async function GET(request: NextRequest) {
         .where(
           and(
             eq(folders.ownerId, userId), 
-            eq(folders.parentId, parentId)));
+            eq(folders.parentId, parentId))
+        );
     } else {
-
       userFolders = await db
         .select()
         .from(folders)
         .where(
           and(
             eq(folders.ownerId, userId), 
-            isNull(folders.parentId)));
+            isNull(folders.parentId))
+        );
     }
 
     return NextResponse.json(userFolders);
