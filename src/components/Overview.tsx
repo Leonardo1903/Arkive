@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useCallback } from "react";
 import axios from "axios";
+import { format } from "date-fns";
 import { Card } from "@/components/ui/card";
 import { FileText, Image, Video, Folder } from "lucide-react";
 
@@ -35,10 +36,20 @@ const colorMap: Record<CategoryType, string> = {
   others: "bg-chart-5/20 text-chart-5",
 };
 
-const formatGB = (bytes: number) => {
+const formatSize = (bytes: number) => {
   if (!bytes) return "0 GB";
   const gb = bytes / 1024 / 1024 / 1024;
-  return `${gb.toFixed(1)} GB`;
+  if (gb >= 1) return `${gb.toFixed(1)} GB`;
+  const mb = bytes / 1024 / 1024;
+  if (mb >= 0.1) return `${mb.toFixed(1)} MB`;
+  const kb = bytes / 1024;
+  return `${kb.toFixed(1)} KB`;
+};
+
+const formatDateTime = (iso: string | null) => {
+  if (!iso) return "--";
+  const date = new Date(iso);
+  return format(date, "dd MMM yyyy, h:mm a");
 };
 
 export default function Overview() {
@@ -46,25 +57,33 @@ export default function Overview() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    const fetchStorage = async () => {
-      try {
-        const res = await axios.get<StorageResponse>("/api/storage");
-        setData(res.data);
-      } catch (err) {
-        console.error(err);
-        setError("Failed to load storage data");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchStorage();
+  const fetchStorage = useCallback(async () => {
+    try {
+      setLoading(true);
+      const res = await axios.get<StorageResponse>("/api/storage");
+      setData(res.data);
+      setError(null);
+    } catch (err) {
+      console.error(err);
+      setError("Failed to load storage data");
+    } finally {
+      setLoading(false);
+    }
   }, []);
 
+  useEffect(() => {
+    fetchStorage();
+  }, [fetchStorage]);
+
+  useEffect(() => {
+    const handler = () => fetchStorage();
+    window.addEventListener("files:updated", handler);
+    return () => window.removeEventListener("files:updated", handler);
+  }, [fetchStorage]);
+
   const percentageUsed = data?.percentageUsed ?? 0;
-  const totalUsed = data ? formatGB(data.totalUsed) : "--";
-  const totalAvailable = data ? formatGB(data.totalAvailable) : "--";
+  const totalUsed = data ? formatSize(data.totalUsed) : "--";
+  const totalAvailable = data ? formatSize(data.totalAvailable) : "--";
 
   const categories = useMemo(() => {
     if (!data?.categories) return [] as Category[];
@@ -143,7 +162,7 @@ export default function Overview() {
                       <Icon className="w-6 h-6" />
                     </div>
                     <div className="text-2xl font-bold text-right">
-                      {formatGB(category.size)}
+                      {formatSize(category.size)}
                     </div>
                   </div>
 
@@ -156,9 +175,7 @@ export default function Overview() {
                       Last update
                     </div>
                     <div className="text-foreground text-xs text-center font-medium mt-0.5">
-                      {category.lastUpdate
-                        ? new Date(category.lastUpdate).toLocaleString()
-                        : "--"}
+                      {formatDateTime(category.lastUpdate)}
                     </div>
                   </div>
                 </div>

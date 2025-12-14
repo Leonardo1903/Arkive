@@ -1,11 +1,26 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useCallback } from "react";
 import axios from "axios";
 import { format } from "date-fns";
 import { Card } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { FileText, Image, Video, MoreVertical } from "lucide-react";
+import {
+  FileText,
+  Image,
+  Video,
+  MoreVertical,
+  MapPin,
+  Star,
+  Trash2,
+} from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Button } from "@/components/ui/button";
 
 type FileIcon = "document" | "image" | "video" | "other";
 
@@ -87,21 +102,52 @@ export default function RecentFiles() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    const fetchRecent = async () => {
-      try {
-        const res = await axios.get("/api/files/recent");
-        setFilesData(res.data?.files ?? []);
-      } catch (err) {
-        console.error(err);
-        setError("Failed to load recent files");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchRecent();
+  const fetchRecent = useCallback(async () => {
+    try {
+      setLoading(true);
+      const res = await axios.get("/api/files/recent");
+      setFilesData(res.data?.files ?? []);
+      setError(null);
+    } catch (err) {
+      console.error(err);
+      setError("Failed to load recent files");
+    } finally {
+      setLoading(false);
+    }
   }, []);
+
+  const handleShowLocation = (fileId: string) => {
+    console.log("Show location for file:", fileId);
+    // TODO: Navigate to file location
+  };
+
+  const handleStar = async (fileId: string) => {
+    try {
+      await axios.post(`/api/files/${fileId}/star`);
+      fetchRecent();
+    } catch (err) {
+      console.error("Failed to star file:", err);
+    }
+  };
+
+  const handleTrash = async (fileId: string) => {
+    try {
+      await axios.post(`/api/files/${fileId}/trash`);
+      fetchRecent();
+    } catch (err) {
+      console.error("Failed to trash file:", err);
+    }
+  };
+
+  useEffect(() => {
+    fetchRecent();
+  }, [fetchRecent]);
+
+  useEffect(() => {
+    const handler = () => fetchRecent();
+    window.addEventListener("files:updated", handler);
+    return () => window.removeEventListener("files:updated", handler);
+  }, [fetchRecent]);
 
   const content = useMemo(() => {
     if (loading) {
@@ -140,9 +186,35 @@ export default function RecentFiles() {
               </div>
             </div>
           </div>
-          <button className="text-muted-foreground hover:text-foreground">
-            <MoreVertical className="w-3 h-3" />
-          </button>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8 text-muted-foreground hover:text-foreground"
+              >
+                <MoreVertical className="w-4 h-4" />
+                <span className="sr-only">File options</span>
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-48">
+              <DropdownMenuItem onClick={() => handleShowLocation(file.id)}>
+                <MapPin className="w-4 h-4 mr-2" />
+                Show location
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => handleStar(file.id)}>
+                <Star className="w-4 h-4 mr-2" />
+                Star
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={() => handleTrash(file.id)}
+                className="text-destructive focus:text-destructive"
+              >
+                <Trash2 className="w-4 h-4 mr-2" />
+                Trash
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
       );
     });
