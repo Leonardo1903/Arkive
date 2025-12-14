@@ -14,6 +14,8 @@ const FILE_CATEGORIES = {
   audio: ["mp3", "wav", "ogg", "m4a", "flac", "aac", "wma"],
 };
 
+const fileExtensionExpr = sql`LOWER(substring(${files.name} from '\\.([^.]*)$'))`;
+
 export async function GET() {
   try {
     const { userId } = await auth();
@@ -23,75 +25,72 @@ export async function GET() {
 
     const totalResult = await db
       .select({
-        total: sql<number>`COALESCE(SUM(${files.size}), 0)`,
+        total: sql<number>`COALESCE(SUM(${files.size}::bigint), 0)`,
       })
       .from(files)
-      .where(and(
-        eq(files.ownerId, userId), 
-        eq(files.isTrashed, false)
-    ));
+      .where(
+        and(eq(files.ownerId, userId), eq(files.isTrashed, false))
+      );
 
     const totalUsed = Number(totalResult[0]?.total) || 0;
-    const percentageUsed = Math.round((totalUsed / STORAGE_LIMIT) * 100);
+    const percentageUsed = STORAGE_LIMIT > 0
+      ? Math.min(100, Number(((totalUsed / STORAGE_LIMIT) * 100).toFixed(1)))
+      : 0;
 
     const categories = await Promise.all([
-
       db
         .select({
-          total: sql<number>`COALESCE(SUM(${files.size}), 0)`,
-          lastUpdate: sql<string>`MAX(${files.updatedAt})`,
+          total: sql<number>`COALESCE(SUM(${files.size}::bigint), 0)`,
+          lastUpdate: sql<string>`TO_CHAR(MAX(${files.createdAt}) AT TIME ZONE 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"')`,
         })
         .from(files)
         .where(
           and(
             eq(files.ownerId, userId),
             eq(files.isTrashed, false),
-            sql`LOWER(${files.type}) IN (${sql.join(FILE_CATEGORIES.documents.map((t) => sql`${t}`), sql`, `)})`
+            sql`(${fileExtensionExpr} IN (${sql.join(FILE_CATEGORIES.documents.map((t) => sql`${t}`), sql`, `)}) OR LOWER(${files.type}) LIKE 'application/%')`
           )
         ),
 
-
       db
         .select({
-          total: sql<number>`COALESCE(SUM(${files.size}), 0)`,
-          lastUpdate: sql<string>`MAX(${files.updatedAt})`,
+          total: sql<number>`COALESCE(SUM(${files.size}::bigint), 0)`,
+          lastUpdate: sql<string>`TO_CHAR(MAX(${files.createdAt}) AT TIME ZONE 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"')`,
         })
         .from(files)
         .where(
           and(
             eq(files.ownerId, userId),
             eq(files.isTrashed, false),
-            sql`LOWER(${files.type}) IN (${sql.join(FILE_CATEGORIES.images.map((t) => sql`${t}`), sql`, `)})`
+            sql`(${fileExtensionExpr} IN (${sql.join(FILE_CATEGORIES.images.map((t) => sql`${t}`), sql`, `)}) OR LOWER(${files.type}) LIKE 'image/%')`
           )
         ),
 
-
       db
         .select({
-          total: sql<number>`COALESCE(SUM(${files.size}), 0)`,
-          lastUpdate: sql<string>`MAX(${files.updatedAt})`,
+          total: sql<number>`COALESCE(SUM(${files.size}::bigint), 0)`,
+          lastUpdate: sql<string>`TO_CHAR(MAX(${files.createdAt}) AT TIME ZONE 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"')`,
         })
         .from(files)
         .where(
           and(
             eq(files.ownerId, userId),
             eq(files.isTrashed, false),
-            sql`LOWER(${files.type}) IN (${sql.join(FILE_CATEGORIES.videos.map((t) => sql`${t}`), sql`, `)})`
+            sql`(${fileExtensionExpr} IN (${sql.join(FILE_CATEGORIES.videos.map((t) => sql`${t}`), sql`, `)}) OR LOWER(${files.type}) LIKE 'video/%')`
           )
         ),
 
-
       db
         .select({
-          total: sql<number>`COALESCE(SUM(${files.size}), 0)`,
-          lastUpdate: sql<string>`MAX(${files.updatedAt})`,
+          total: sql<number>`COALESCE(SUM(${files.size}::bigint), 0)`,
+          lastUpdate: sql<string>`TO_CHAR(MAX(${files.createdAt}) AT TIME ZONE 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"')`,
         })
         .from(files)
         .where(
           and(
             eq(files.ownerId, userId),
             eq(files.isTrashed, false),
-            sql`LOWER(${files.type}) IN (${sql.join(FILE_CATEGORIES.audio.map((t) => sql`${t}`), sql`, `)})`
+            sql`(${fileExtensionExpr} IN (${sql.join(FILE_CATEGORIES.audio.map((t) => sql`${t}`), sql`, `)}) OR LOWER(${files.type}) LIKE 'audio/%')`
           )
         ),
     ]);
@@ -102,7 +101,29 @@ export async function GET() {
     const audioSize = Number(categories[3][0]?.total) || 0;
 
     const categorizedTotal = documentsSize + imagesSize + videosSize + audioSize;
-    const othersSize = totalUsed - categorizedTotal;
+    const othersSize = Math.max(0, totalUsed - categorizedTotal);
+
+    const others = await db
+      .select({
+        lastUpdate: sql<string>`TO_CHAR(MAX(${files.createdAt}) AT TIME ZONE 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"')`,
+      })
+      .from(files)
+      .where(
+        and(
+          eq(files.ownerId, userId),
+          eq(files.isTrashed, false),
+          sql`NOT (${fileExtensionExpr} IN (${sql.join(FILE_CATEGORIES.documents.map((t) => sql`${t}`), sql`, `)})
+                OR ${fileExtensionExpr} IN (${sql.join(FILE_CATEGORIES.images.map((t) => sql`${t}`), sql`, `)})
+                OR ${fileExtensionExpr} IN (${sql.join(FILE_CATEGORIES.videos.map((t) => sql`${t}`), sql`, `)})
+                OR ${fileExtensionExpr} IN (${sql.join(FILE_CATEGORIES.audio.map((t) => sql`${t}`), sql`, `)}))`
+        )
+      );
+
+    const videoLast = categories[2][0]?.lastUpdate || null;
+    const audioLast = categories[3][0]?.lastUpdate || null;
+    const combinedVA = videoLast && audioLast
+      ? (videoLast > audioLast ? videoLast : audioLast)
+      : videoLast || audioLast || null;
 
     return NextResponse.json({
       totalUsed,
@@ -125,16 +146,13 @@ export async function GET() {
           type: "videos",
           name: "Videos, Audio",
           size: videosSize + audioSize,
-          lastUpdate:
-            categories[2][0]?.lastUpdate > categories[3][0]?.lastUpdate
-              ? categories[2][0]?.lastUpdate
-              : categories[3][0]?.lastUpdate,
+          lastUpdate: combinedVA,
         },
         {
           type: "others",
           name: "Others",
           size: othersSize,
-          lastUpdate: null,
+          lastUpdate: others[0]?.lastUpdate || null,
         },
       ],
     });

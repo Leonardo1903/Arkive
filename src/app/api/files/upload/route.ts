@@ -73,6 +73,12 @@ export async function POST(request: NextRequest) {
       useUniqueFileName: false,
     });
 
+    const derivedSize = typeof file.size === "number" && file.size > 0
+      ? file.size
+      : fileBuffer.byteLength;
+
+    const derivedType = file.type || `application/${fileExtension || "octet-stream"}`;
+
     const fileData = {
       folderId,
       imageKitId: uploadResponse.fileId,
@@ -80,8 +86,8 @@ export async function POST(request: NextRequest) {
       name: originalFilename,
       url: uploadResponse.url,
       thumbnailUrl: uploadResponse.thumbnailUrl || null,
-      type: file.type,
-      size: file.size,
+      type: derivedType,
+      size: derivedSize,
       width: uploadResponse.width || null,
       height: uploadResponse.height || null,
       isStarred: false,
