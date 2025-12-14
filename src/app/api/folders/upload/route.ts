@@ -69,7 +69,8 @@ async function createFolderPath(
 async function uploadFileToFolder(
   userId: string,
   file: File,
-  folderId: string
+  folderId: string,
+  displayName: string
 ): Promise<typeof files.$inferSelect> {
   if (!file || !(file instanceof File)) {
     throw new Error(`Invalid file object: ${typeof file}`);
@@ -90,7 +91,7 @@ async function uploadFileToFolder(
     throw new Error(`Buffer is empty for file "${file.name}" (reported size: ${file.size}, buffer length: ${fileBuffer.length})`);
   }
 
-  const fileExtension = file.name.split(".").pop() || "";
+  const fileExtension = (displayName || file.name).split(".").pop() || "";
   const uniqueFilename = `${uuidv4()}.${fileExtension}`;
 
   const imagekitFolderPath = `/arkive/${userId}/folders/${folderId}`;
@@ -111,7 +112,7 @@ async function uploadFileToFolder(
       folderId,
       imageKitId: uploadResponse.fileId,
       ownerId: userId,
-      name: file.name,
+      name: displayName || file.name,
       url: uploadResponse.url,
       thumbnailUrl: uploadResponse.thumbnailUrl || null,
       type: derivedType,
@@ -191,6 +192,7 @@ export async function POST(request: NextRequest) {
     for (const { filePath, file } of fileList) {
       const parts = filePath.split("/").filter(p => p.length > 0);
       const folderParts = parts.slice(0, -1);
+      const displayName = parts[parts.length - 1] || file.name;
 
       let targetFolderId: string;
 
@@ -220,7 +222,8 @@ export async function POST(request: NextRequest) {
           const uploadedFile = await uploadFileToFolder(
             userId,
             file,
-            targetFolderId
+            targetFolderId,
+            displayName
           );
           uploadedFiles.push(uploadedFile);
         } catch (error) {
