@@ -9,6 +9,7 @@ import Link from "next/link";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { toast } from "sonner";
 import {
   Card,
   CardHeader,
@@ -54,13 +55,19 @@ export default function SignInForm() {
       if (result.status === "complete") {
         await setActive({ session: result.createdSessionId });
         router.push("/dashboard");
+        toast.success("Signed in successfully");
       } else {
         console.error("Sign-in incomplete:", result);
         setAuthError("Sign-in could not be completed. Please try again.");
+        toast.error("Sign-in could not be completed. Please try again.");
       }
     } catch (error: any) {
       console.error("Sign-in error:", error);
       setAuthError(
+        error.errors?.[0]?.message ||
+          "An error occurred during sign-in. Please try again."
+      );
+      toast.error(
         error.errors?.[0]?.message ||
           "An error occurred during sign-in. Please try again."
       );
