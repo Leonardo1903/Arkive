@@ -34,9 +34,12 @@ export default function UploadModal({
 
   const truncateFileName = (name: string, maxLength: number = 50) => {
     if (name.length <= maxLength) return name;
-    const extension = name.split('.').pop() || '';
-    const nameWithoutExt = name.slice(0, name.lastIndexOf('.'));
-    const truncatedName = nameWithoutExt.slice(0, maxLength - extension.length - 4);
+    const extension = name.split(".").pop() || "";
+    const nameWithoutExt = name.slice(0, name.lastIndexOf("."));
+    const truncatedName = nameWithoutExt.slice(
+      0,
+      maxLength - extension.length - 4
+    );
     return `${truncatedName}...${extension}`;
   };
 
