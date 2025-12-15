@@ -1,11 +1,11 @@
 "use client";
 
-import { useState, useMemo, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useState, useMemo, useEffect, useRef, useCallback } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
-import { Upload, LogOut } from "lucide-react";
+import { LogOut, Plus, FolderPlus, FileUp } from "lucide-react";
 import { toast } from "sonner";
 import { useClerk, useUser } from "@clerk/nextjs";
 import axios from "axios";
@@ -27,8 +27,12 @@ export default function Header() {
   const { signOut } = useClerk();
   const { user } = useUser();
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const currentFolderId = searchParams.get("folderId");
   const [query, setQuery] = useState("");
   const [uploadModalOpen, setUploadModalOpen] = useState(false);
+  const [newMenuOpen, setNewMenuOpen] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
   const [results, setResults] = useState<{
     files: FileResult[];
     folders: FolderResult[];
@@ -37,12 +41,23 @@ export default function Header() {
     folders: [],
   });
 
+  // Close menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+        setNewMenuOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
   const handleSignOut = async () => {
     await signOut({ redirectUrl: "/sign-in" });
     toast.success("Signed out successfully");
   };
 
-  const handleSearch = async () => {
+  const handleSearch = useCallback(async () => {
     const q = query.trim();
     if (!q) {
       setResults({ files: [], folders: [] });
@@ -59,7 +74,7 @@ export default function Header() {
       console.error(err);
       toast.error("Search failed");
     }
-  };
+  }, [query]);
 
   useEffect(() => {
     const delayDebounceFn = setTimeout(() => {
@@ -67,7 +82,7 @@ export default function Header() {
     }, 300);
 
     return () => clearTimeout(delayDebounceFn);
-  }, [query]);
+  }, [query, handleSearch]);
 
   const handleNavigate = (
     item: FileResult | FolderResult,
@@ -95,6 +110,96 @@ export default function Header() {
 
   const handleUploaded = () => {
     window.dispatchEvent(new Event("files:updated"));
+  };
+
+  const handleNewFolder = () => {
+    const name = window.prompt("Folder name");
+    if (!name || !name.trim()) {
+      setNewMenuOpen(false);
+      return;
+    }
+
+    axios
+      .post("/api/folders/create", {
+        name: name.trim(),
+        ownerId: user?.id,
+        parentId: currentFolderId,
+      })
+      .then(() => {
+        toast.success("Folder created");
+        window.dispatchEvent(new Event("files:updated"));
+      })
+      .catch((err) => {
+        console.error(err);
+        const message =
+          axios.isAxiosError(err) && err.response?.data?.error
+            ? err.response.data.error
+            : "Failed to create folder";
+        toast.error(message);
+      })
+      .finally(() => {
+        setNewMenuOpen(false);
+      });
+  };
+
+  const handleFileUpload = () => {
+    setUploadModalOpen(true);
+    setNewMenuOpen(false);
+  };
+
+  const handleFolderUpload = () => {
+    setNewMenuOpen(false);
+    const input = document.createElement("input");
+    input.type = "file";
+    input.webkitdirectory = true;
+    input.multiple = true;
+
+    input.onchange = async (e: any) => {
+      const files: File[] = Array.from(e.target.files);
+      if (files.length === 0) return;
+
+      const folderName = files[0].webkitRelativePath.split("/")[0];
+      toast.loading(`Uploading folder "${folderName}"...`);
+
+      try {
+        const formData = new FormData();
+        formData.append("ownerId", user?.id || "");
+        if (currentFolderId) {
+          formData.append("parentFolderId", currentFolderId);
+        }
+
+        // Add files with their full relative paths (including root folder)
+        files.forEach((file) => {
+          const fullPath = file.webkitRelativePath;
+          if (fullPath) {
+            formData.append(fullPath, file);
+          }
+        });
+
+        const response = await axios.post("/api/folders/upload", formData, {
+          headers: { "Content-Type": "multipart/form-data" },
+        });
+
+        if (response.data.success) {
+          toast.dismiss();
+          toast.success(
+            `Uploaded "${folderName}" with ${response.data.filesUploaded} files`
+          );
+
+          // Trigger files:updated event to refresh UI
+          window.dispatchEvent(new Event("files:updated"));
+        }
+      } catch (error) {
+        toast.dismiss();
+        const message =
+          axios.isAxiosError(error) && error.response?.data?.error
+            ? error.response.data.error
+            : "Failed to upload folder";
+        toast.error(message);
+      }
+    };
+
+    input.click();
   };
 
   return (
@@ -130,29 +235,26 @@ export default function Header() {
                       <span className="text-sm text-foreground truncate">
                         {file.name}
                       </span>
-                      <span className="text-xs text-muted-foreground">
-                        {file.type}
-                      </span>
                     </button>
                   ))}
-                </div>
-              )}
-              {results.folders?.length > 0 && (
-                <div className="pt-1">
-                  <div className="text-xs text-muted-foreground px-2 py-1">
-                    Folders
-                  </div>
-                  {results.folders.map((folder) => (
-                    <button
-                      key={`folder-${folder.id}`}
-                      className="w-full text-left px-2 py-1.5 rounded-md hover:bg-muted"
-                      onClick={() => handleNavigate(folder, "folder")}
-                    >
-                      <span className="text-sm text-foreground truncate">
-                        {folder.name}
-                      </span>
-                    </button>
-                  ))}
+                  {results.folders.length > 0 && (
+                    <>
+                      <div className="text-xs text-muted-foreground px-2 py-1 mt-2">
+                        Folders
+                      </div>
+                      {results.folders.map((folder) => (
+                        <button
+                          key={`folder-${folder.id}`}
+                          className="w-full text-left px-2 py-1.5 rounded-md hover:bg-muted"
+                          onClick={() => handleNavigate(folder, "folder")}
+                        >
+                          <span className="text-sm text-foreground truncate">
+                            {folder.name}
+                          </span>
+                        </button>
+                      ))}
+                    </>
+                  )}
                 </div>
               )}
             </div>
@@ -160,13 +262,40 @@ export default function Header() {
         )}
       </div>
       <div className="flex items-center gap-2">
-        <Button
-          className="bg-primary hover:bg-primary/90 text-primary-foreground rounded-lg px-6"
-          onClick={() => setUploadModalOpen(true)}
-        >
-          <Upload className="w-4 h-4 mr-2" />
-          Upload
-        </Button>
+        <div className="relative" ref={menuRef}>
+          <Button
+            className="bg-primary hover:bg-primary/90 text-primary-foreground rounded-lg px-6"
+            onClick={() => setNewMenuOpen(!newMenuOpen)}
+          >
+            <Plus className="w-4 h-4 mr-2" />
+            New
+          </Button>
+          {newMenuOpen && (
+            <Card className="absolute top-full mt-2 right-0 w-48 shadow-lg z-30">
+              <button
+                className="w-full text-left px-4 py-2 hover:bg-muted flex items-center gap-2 rounded-t-lg"
+                onClick={handleNewFolder}
+              >
+                <FolderPlus className="w-4 h-4" />
+                <span className="text-sm">New folder</span>
+              </button>
+              <button
+                className="w-full text-left px-4 py-2 hover:bg-muted flex items-center gap-2"
+                onClick={handleFileUpload}
+              >
+                <FileUp className="w-4 h-4" />
+                <span className="text-sm">File upload</span>
+              </button>
+              <button
+                className="w-full text-left px-4 py-2 hover:bg-muted flex items-center gap-2 rounded-b-lg"
+                onClick={handleFolderUpload}
+              >
+                <FolderPlus className="w-4 h-4" />
+                <span className="text-sm">Folder upload</span>
+              </button>
+            </Card>
+          )}
+        </div>
         <Button
           variant="ghost"
           size="icon"
@@ -181,6 +310,7 @@ export default function Header() {
         open={uploadModalOpen}
         onOpenChange={setUploadModalOpen}
         ownerId={user?.id}
+        folderId={currentFolderId ?? null}
         onUploaded={handleUploaded}
       />
     </div>
