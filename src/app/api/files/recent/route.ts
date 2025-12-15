@@ -15,6 +15,7 @@ export async function GET() {
     const recentFiles = await db
       .select({
         id: files.id,
+        folderId: files.folderId,
         name: files.name,
         type: files.type,
         size: files.size,

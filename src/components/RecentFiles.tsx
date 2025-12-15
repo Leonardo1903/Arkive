@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState, useCallback } from "react";
+import { useRouter } from "next/navigation";
 import axios from "axios";
 import { format } from "date-fns";
 import { Card } from "@/components/ui/card";
@@ -26,6 +27,7 @@ type FileIcon = "document" | "image" | "video" | "other";
 
 type RecentFile = {
   id: string;
+  folderId: string | null;
   name: string;
   type: string;
   createdAt: string;
@@ -98,6 +100,7 @@ const getFileIcon = (type: string, colorClass: string) => {
 };
 
 export default function RecentFiles() {
+  const router = useRouter();
   const [filesData, setFilesData] = useState<RecentFile[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -116,9 +119,13 @@ export default function RecentFiles() {
     }
   }, []);
 
-  const handleShowLocation = (fileId: string) => {
-    console.log("Show location for file:", fileId);
-    // TODO: Navigate to file location
+  const handleShowLocation = (file: RecentFile) => {
+    if (file.folderId) {
+      router.push(`/my-files?folderId=${file.folderId}`);
+      return;
+    }
+
+    router.push("/my-files");
   };
 
   const handleStar = async (fileId: string) => {
@@ -198,7 +205,7 @@ export default function RecentFiles() {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-48">
-              <DropdownMenuItem onClick={() => handleShowLocation(file.id)}>
+              <DropdownMenuItem onClick={() => handleShowLocation(file)}>
                 <MapPin className="w-4 h-4 mr-2" />
                 Show location
               </DropdownMenuItem>
