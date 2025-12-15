@@ -122,7 +122,7 @@ export default function FolderView({
 
   const handleFolderStar = async (folderId: string) => {
     try {
-      await axios.post(`/api/folders/${folderId}/star`);
+      await axios.patch(`/api/folders/${folderId}/star`);
       fetchData();
     } catch (err) {
       console.error("Failed to star folder", err);
@@ -131,7 +131,7 @@ export default function FolderView({
 
   const handleFolderTrash = async (folderId: string) => {
     try {
-      await axios.post(`/api/folders/${folderId}/trash`);
+      await axios.patch(`/api/folders/${folderId}/trash`);
       fetchData();
     } catch (err) {
       console.error("Failed to trash folder", err);
@@ -146,7 +146,7 @@ export default function FolderView({
 
   const handleStar = async (fileId: string) => {
     try {
-      await axios.post(`/api/files/${fileId}/star`);
+      await axios.patch(`/api/files/${fileId}/star`);
       fetchData();
     } catch (err) {
       console.error("Failed to star file", err);
@@ -155,7 +155,7 @@ export default function FolderView({
 
   const handleTrash = async (fileId: string) => {
     try {
-      await axios.post(`/api/files/${fileId}/trash`);
+      await axios.patch(`/api/files/${fileId}/trash`);
       fetchData();
     } catch (err) {
       console.error("Failed to trash file", err);

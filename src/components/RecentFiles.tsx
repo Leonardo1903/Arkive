@@ -130,7 +130,7 @@ export default function RecentFiles() {
 
   const handleStar = async (fileId: string) => {
     try {
-      await axios.post(`/api/files/${fileId}/star`);
+      await axios.patch(`/api/files/${fileId}/star`);
       fetchRecent();
     } catch (err) {
       console.error("Failed to star file:", err);
@@ -139,7 +139,7 @@ export default function RecentFiles() {
 
   const handleTrash = async (fileId: string) => {
     try {
-      await axios.post(`/api/files/${fileId}/trash`);
+      await axios.patch(`/api/files/${fileId}/trash`);
       fetchRecent();
     } catch (err) {
       console.error("Failed to trash file:", err);

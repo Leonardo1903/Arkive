@@ -122,7 +122,7 @@ export default function MyFilesPage() {
 
   const handleFolderStar = async (folderId: string) => {
     try {
-      await axios.post(`/api/folders/${folderId}/star`);
+      await axios.patch(`/api/folders/${folderId}/star`);
       fetchData(currentFolderId);
     } catch (err) {
       console.error("Failed to star folder", err);
@@ -131,7 +131,7 @@ export default function MyFilesPage() {
 
   const handleFolderTrash = async (folderId: string) => {
     try {
-      await axios.post(`/api/folders/${folderId}/trash`);
+      await axios.patch(`/api/folders/${folderId}/trash`);
       fetchData(currentFolderId);
     } catch (err) {
       console.error("Failed to trash folder", err);
@@ -146,7 +146,7 @@ export default function MyFilesPage() {
 
   const handleStar = async (fileId: string) => {
     try {
-      await axios.post(`/api/files/${fileId}/star`);
+      await axios.patch(`/api/files/${fileId}/star`);
       fetchData(currentFolderId);
     } catch (err) {
       console.error("Failed to star file", err);
@@ -155,7 +155,7 @@ export default function MyFilesPage() {
 
   const handleTrash = async (fileId: string) => {
     try {
-      await axios.post(`/api/files/${fileId}/trash`);
+      await axios.patch(`/api/files/${fileId}/trash`);
       fetchData(currentFolderId);
     } catch (err) {
       console.error("Failed to trash file", err);
