@@ -22,11 +22,7 @@ export async function PATCH(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { parentId = null, ownerId: bodyOwnerId } = body;
-
-    if (bodyOwnerId !== userId) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
+    const { parentId = null } = body;
 
     if (!fileId) {
       return NextResponse.json({ error: "File ID is required" }, { status: 400 });

@@ -23,11 +23,7 @@ export async function PATCH(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { name, ownerId: bodyOwnerId, parentId = null } = body;
-
-    if (bodyOwnerId !== userId) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
+    const { name, parentId = null } = body;
 
     if (!folderId) {
       return NextResponse.json({ error: "Folder ID is required" }, { status: 400 });
