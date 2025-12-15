@@ -15,6 +15,8 @@ export async function GET(request: NextRequest) {
     const queryOwnerId = searchParams.get("ownerId");
     const parentId = searchParams.get("parentId");
     const folderId = searchParams.get("folderId");
+    const starred = searchParams.get("starred");
+    const trashed = searchParams.get("trashed");
 
     if (!queryOwnerId || queryOwnerId !== userId) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -37,6 +39,35 @@ export async function GET(request: NextRequest) {
       return NextResponse.json(folder);
     }
 
+    // If starred filter is requested
+    if (starred === "true") {
+      const userFolders = await db
+        .select()
+        .from(folders)
+        .where(
+          and(
+            eq(folders.ownerId, userId),
+            eq(folders.isStarred, true),
+            eq(folders.isTrashed, false)
+          )
+        );
+      return NextResponse.json(userFolders);
+    }
+
+    // If trashed filter is requested
+    if (trashed === "true") {
+      const userFolders = await db
+        .select()
+        .from(folders)
+        .where(
+          and(
+            eq(folders.ownerId, userId),
+            eq(folders.isTrashed, true)
+          )
+        );
+      return NextResponse.json(userFolders);
+    }
+
     let userFolders;
     if (parentId) {
       userFolders = await db
@@ -45,7 +76,9 @@ export async function GET(request: NextRequest) {
         .where(
           and(
             eq(folders.ownerId, userId), 
-            eq(folders.parentId, parentId))
+            eq(folders.parentId, parentId),
+            eq(folders.isTrashed, false)
+          )
         );
     } else {
       userFolders = await db
@@ -54,7 +87,9 @@ export async function GET(request: NextRequest) {
         .where(
           and(
             eq(folders.ownerId, userId), 
-            isNull(folders.parentId))
+            isNull(folders.parentId),
+            eq(folders.isTrashed, false)
+          )
         );
     }
 

@@ -14,11 +14,41 @@ export async function GET(request: NextRequest) {
     const searchParams = request.nextUrl.searchParams;
     const queryOwnerId = searchParams.get("ownerId");
     const folderId = searchParams.get("folderId");
+    const starred = searchParams.get("starred");
+    const trashed = searchParams.get("trashed");
 
     if (!queryOwnerId || queryOwnerId !== userId) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
+    // If starred filter is requested
+    if (starred === "true") {
+      const userFiles = await db
+        .select()
+        .from(files)
+        .where(
+          and(
+            eq(files.ownerId, userId),
+            eq(files.isStarred, true),
+            eq(files.isTrashed, false)
+          )
+        );
+      return NextResponse.json(userFiles);
+    }
+
+    // If trashed filter is requested
+    if (trashed === "true") {
+      const userFiles = await db
+        .select()
+        .from(files)
+        .where(
+          and(
+            eq(files.ownerId, userId),
+            eq(files.isTrashed, true)
+          )
+        );
+      return NextResponse.json(userFiles);
+    }
 
     let userFiles;
     if (folderId) {
@@ -28,7 +58,10 @@ export async function GET(request: NextRequest) {
         .where(
           and(
             eq(files.ownerId, userId), 
-            eq(files.folderId, folderId)));
+            eq(files.folderId, folderId),
+            eq(files.isTrashed, false)
+          )
+        );
     } else {
 
       userFiles = await db
@@ -37,7 +70,10 @@ export async function GET(request: NextRequest) {
         .where(
           and(
             eq(files.ownerId, userId), 
-            isNull(files.folderId)));
+            isNull(files.folderId),
+            eq(files.isTrashed, false)
+          )
+        );
     }
 
     return NextResponse.json(userFiles);
