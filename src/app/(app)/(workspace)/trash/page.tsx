@@ -22,6 +22,7 @@ import {
   Trash2,
 } from "lucide-react";
 import ConfirmDialog from "@/components/ConfirmDialog";
+import { Separator } from "@/components/ui/separator";
 
 type FolderItem = {
   id: string;
@@ -64,7 +65,6 @@ const formatSize = (bytes?: number) => {
 
 export default function TrashPage() {
   const { user } = useUser();
-  const router = useRouter();
   const [folders, setFolders] = useState<FolderItem[]>([]);
   const [filesData, setFilesData] = useState<FileItem[]>([]);
   const [loading, setLoading] = useState(true);
@@ -164,6 +164,7 @@ export default function TrashPage() {
     <div className="space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <h1 className="text-2xl font-bold">Trash</h1>
+        <Separator />
         {!empty && (
           <Button
             variant="destructive"

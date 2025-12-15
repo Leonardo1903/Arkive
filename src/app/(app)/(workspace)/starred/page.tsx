@@ -23,6 +23,7 @@ import {
   Trash2,
 } from "lucide-react";
 import MoveModal from "@/components/MoveModal";
+import { Separator } from "@/components/ui/separator";
 
 type FolderItem = {
   id: string;
@@ -171,6 +172,7 @@ export default function StarredPage() {
     <div className="space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <h1 className="text-2xl font-bold">Starred</h1>
+        <Separator />
       </div>
 
       <Card className="p-5 rounded-2xl border-none bg-transparent shadow-none">

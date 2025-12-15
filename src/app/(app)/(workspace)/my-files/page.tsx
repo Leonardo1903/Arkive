@@ -24,6 +24,7 @@ import {
 } from "lucide-react";
 import Breadcrumbs from "@/components/Breadcrumbs";
 import MoveModal from "@/components/MoveModal";
+import { Separator } from "@/components/ui/separator";
 
 type FolderItem = {
   id: string;
@@ -174,6 +175,8 @@ export default function MyFilesPage() {
   return (
     <div className="space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
+        <h1 className="text-2xl font-bold">My Files</h1>
+        <Separator />
         <Breadcrumbs currentFolderId={currentFolderId} userId={user?.id} />
       </div>
 
