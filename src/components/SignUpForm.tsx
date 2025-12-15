@@ -9,6 +9,7 @@ import Link from "next/link";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import {
   Card,
   CardHeader,
@@ -230,12 +231,7 @@ export default function SignUpForm() {
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
           <div className="space-y-2">
-            <label
-              htmlFor="email"
-              className="text-sm font-medium text-card-foreground"
-            >
-              Email
-            </label>
+            <Label htmlFor="email">Email</Label>
             <div className="flex items-center gap-2">
               <Mail className="h-4 w-4 text-default-500" />
               <Input
@@ -254,12 +250,7 @@ export default function SignUpForm() {
           </div>
 
           <div className="space-y-2">
-            <label
-              htmlFor="password"
-              className="text-sm font-medium text-card-foreground"
-            >
-              Password
-            </label>
+            <Label htmlFor="password">Password</Label>
             <div className="flex items-center gap-2">
               <Lock className="h-4 w-4 text-default-500" />
               <div className="relative flex-1">
@@ -293,12 +284,7 @@ export default function SignUpForm() {
           </div>
 
           <div className="space-y-2">
-            <label
-              htmlFor="passwordConfirmation"
-              className="text-sm font-medium text-card-foreground"
-            >
-              Confirm Password
-            </label>
+            <Label htmlFor="passwordConfirmation">Confirm Password</Label>
             <div className="flex items-center gap-2">
               <Lock className="h-4 w-4 text-default-500" />
               <div className="relative flex-1">
