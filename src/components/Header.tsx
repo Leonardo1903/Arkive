@@ -10,6 +10,7 @@ import { toast } from "sonner";
 import { useClerk, useUser } from "@clerk/nextjs";
 import axios from "axios";
 import UploadModal from "@/components/UploadModal";
+import CreateFolderModal from "@/components/CreateFolderModal";
 
 type FileResult = {
   id: string;
@@ -31,6 +32,7 @@ export default function Header() {
   const currentFolderId = searchParams.get("folderId");
   const [query, setQuery] = useState("");
   const [uploadModalOpen, setUploadModalOpen] = useState(false);
+  const [createFolderModalOpen, setCreateFolderModalOpen] = useState(false);
   const [newMenuOpen, setNewMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
   const [results, setResults] = useState<{
@@ -113,15 +115,14 @@ export default function Header() {
   };
 
   const handleNewFolder = () => {
-    const name = window.prompt("Folder name");
-    if (!name || !name.trim()) {
-      setNewMenuOpen(false);
-      return;
-    }
+    setNewMenuOpen(false);
+    setCreateFolderModalOpen(true);
+  };
 
+  const handleCreateFolder = (name: string) => {
     axios
       .post("/api/folders/create", {
-        name: name.trim(),
+        name,
         ownerId: user?.id,
         parentId: currentFolderId,
       })
@@ -136,9 +137,6 @@ export default function Header() {
             ? err.response.data.error
             : "Failed to create folder";
         toast.error(message);
-      })
-      .finally(() => {
-        setNewMenuOpen(false);
       });
   };
 
@@ -312,6 +310,12 @@ export default function Header() {
         ownerId={user?.id}
         folderId={currentFolderId ?? null}
         onUploaded={handleUploaded}
+      />
+
+      <CreateFolderModal
+        open={createFolderModalOpen}
+        onOpenChange={setCreateFolderModalOpen}
+        onConfirm={handleCreateFolder}
       />
     </div>
   );

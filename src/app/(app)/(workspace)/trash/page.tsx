@@ -21,6 +21,7 @@ import {
   RotateCcw,
   Trash2,
 } from "lucide-react";
+import ConfirmDialog from "@/components/ConfirmDialog";
 
 type FolderItem = {
   id: string;
@@ -69,6 +70,7 @@ export default function TrashPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [emptyingTrash, setEmptyingTrash] = useState(false);
+  const [showEmptyTrashConfirm, setShowEmptyTrashConfirm] = useState(false);
 
   const fetchData = useCallback(async () => {
     if (!user?.id) return;
@@ -143,14 +145,6 @@ export default function TrashPage() {
   };
 
   const handleEmptyTrash = async () => {
-    if (
-      !confirm(
-        "Are you sure you want to permanently delete all items in trash? This action cannot be undone."
-      )
-    ) {
-      return;
-    }
-
     try {
       setEmptyingTrash(true);
       await axios.delete("/api/empty-trash");
@@ -173,7 +167,7 @@ export default function TrashPage() {
         {!empty && (
           <Button
             variant="destructive"
-            onClick={handleEmptyTrash}
+            onClick={() => setShowEmptyTrashConfirm(true)}
             disabled={emptyingTrash}
           >
             {emptyingTrash ? (
@@ -329,6 +323,17 @@ export default function TrashPage() {
           </div>
         )}
       </Card>
+
+      <ConfirmDialog
+        open={showEmptyTrashConfirm}
+        onOpenChange={setShowEmptyTrashConfirm}
+        onConfirm={handleEmptyTrash}
+        title="Empty Trash"
+        description="Are you sure you want to permanently delete all items in trash? This action cannot be undone."
+        confirmText="Empty Trash"
+        cancelText="Cancel"
+        variant="destructive"
+      />
     </div>
   );
 }
