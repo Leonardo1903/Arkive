@@ -11,18 +11,7 @@ import { useClerk, useUser } from "@clerk/nextjs";
 import axios from "axios";
 import UploadModal from "@/components/UploadModal";
 import CreateFolderModal from "@/components/CreateFolderModal";
-
-type FileResult = {
-  id: string;
-  name: string;
-  type: string;
-  folderId: string | null;
-};
-
-type FolderResult = {
-  id: string;
-  name: string;
-};
+import { FileSearchResult, FolderSearchResult } from "@/types";
 
 export default function Header() {
   const { signOut } = useClerk();
@@ -36,8 +25,8 @@ export default function Header() {
   const [newMenuOpen, setNewMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
   const [results, setResults] = useState<{
-    files: FileResult[];
-    folders: FolderResult[];
+    files: FileSearchResult[];
+    folders: FolderSearchResult[];
   }>({
     files: [],
     folders: [],
@@ -87,18 +76,18 @@ export default function Header() {
   }, [query, handleSearch]);
 
   const handleNavigate = (
-    item: FileResult | FolderResult,
+    item: FileSearchResult | FolderSearchResult,
     type: "file" | "folder"
   ) => {
     if (type === "file") {
-      const file = item as FileResult;
+      const file = item as FileSearchResult;
       if (file.folderId) {
         router.push(`/folders/${file.folderId}?file=${file.id}`);
       } else {
         router.push(`/files/${file.id}`);
       }
     } else {
-      const folder = item as FolderResult;
+      const folder = item as FolderSearchResult;
       router.push(`/folders/${folder.id}`);
     }
     setResults({ files: [], folders: [] });

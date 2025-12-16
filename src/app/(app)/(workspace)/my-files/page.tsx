@@ -4,7 +4,6 @@ import { useEffect, useState, useCallback } from "react";
 import axios from "axios";
 import { useUser } from "@clerk/nextjs";
 import { useRouter, useSearchParams } from "next/navigation";
-import { format } from "date-fns";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
@@ -25,43 +24,13 @@ import {
 import Breadcrumbs from "@/components/Breadcrumbs";
 import MoveModal from "@/components/MoveModal";
 import { Separator } from "@/components/ui/separator";
-
-type FolderItem = {
-  id: string;
-  name: string;
-  parentId: string | null;
-  createdAt?: string;
-};
-
-type FileItem = {
-  id: string;
-  name: string;
-  type: string;
-  folderId: string | null;
-  createdAt: string;
-  size?: number;
-};
-
-const formatTime = (iso: string) => {
-  const date = new Date(iso);
-  return format(date, "dd MMM yyyy, h:mm a");
-};
-
-const baseName = (name: string) => {
-  if (!name) return "";
-  const parts = name.split(/[/\\]/);
-  return parts[parts.length - 1];
-};
-
-const formatSize = (bytes?: number) => {
-  if (!bytes) return "--";
-  const gb = bytes / 1024 / 1024 / 1024;
-  if (gb >= 1) return `${gb.toFixed(1)} GB`;
-  const mb = bytes / 1024 / 1024;
-  if (mb >= 0.1) return `${mb.toFixed(1)} MB`;
-  const kb = bytes / 1024;
-  return `${kb.toFixed(1)} KB`;
-};
+import {
+  FolderItem,
+  FileItem,
+  formatTime,
+  baseName,
+  formatSize,
+} from "@/types";
 
 export default function MyFilesPage() {
   const { user } = useUser();

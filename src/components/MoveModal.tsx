@@ -12,11 +12,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Folder, Loader2 } from "lucide-react";
 import { toast } from "sonner";
-
-type FolderOption = {
-  id: string;
-  name: string;
-};
+import { FolderOption } from "@/types";
 
 interface MoveModalProps {
   isOpen: boolean;

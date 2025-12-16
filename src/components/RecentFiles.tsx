@@ -3,7 +3,6 @@
 import { useEffect, useMemo, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import axios from "axios";
-import { format } from "date-fns";
 import { Card } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import {
@@ -22,45 +21,13 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
-
-type FileIcon = "document" | "image" | "video" | "other";
-
-type RecentFile = {
-  id: string;
-  folderId: string | null;
-  name: string;
-  type: string;
-  createdAt: string;
-};
-
-const iconForExtension = (ext: string): FileIcon => {
-  const lowered = ext.toLowerCase();
-  if (
-    ["jpg", "jpeg", "png", "gif", "webp", "svg", "bmp", "ico", "heic"].includes(
-      lowered
-    )
-  ) {
-    return "image";
-  }
-  if (
-    ["mp4", "mov", "avi", "mkv", "webm", "flv", "wmv", "m4v"].includes(lowered)
-  ) {
-    return "video";
-  }
-  return "document";
-};
-
-const colorForIcon: Record<FileIcon, string> = {
-  document: "bg-primary/10 text-primary",
-  image: "bg-chart-4/20 text-chart-4",
-  video: "bg-chart-2/20 text-chart-2",
-  other: "bg-chart-5/20 text-chart-5",
-};
-
-const formatTime = (iso: string) => {
-  const date = new Date(iso);
-  return format(date, "hh:mma, dd MMM");
-};
+import {
+  RecentFile,
+  FileIcon,
+  iconForExtension,
+  colorForIcon,
+  formatShortTime,
+} from "@/types";
 
 const getFileIcon = (type: string, colorClass: string) => {
   switch (type) {

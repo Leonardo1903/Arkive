@@ -2,54 +2,28 @@
 
 import { useEffect, useMemo, useState, useCallback } from "react";
 import axios from "axios";
-import { format } from "date-fns";
 import { Card } from "@/components/ui/card";
 import { FileText, Image, Video, Folder } from "lucide-react";
+import {
+  FileCategory,
+  StorageResponse,
+  StorageCategory,
+  formatSize,
+  formatDateTime,
+} from "@/types";
 
-type CategoryType = "documents" | "images" | "videos" | "others";
-
-type Category = {
-  type: CategoryType;
-  name: string;
-  size: number;
-  lastUpdate: string | null;
-};
-
-type StorageResponse = {
-  totalUsed: number;
-  totalAvailable: number;
-  percentageUsed: number;
-  categories: Category[];
-};
-
-const iconMap: Record<CategoryType, typeof FileText> = {
+const iconMap: Record<FileCategory, typeof FileText> = {
   documents: FileText,
   images: Image,
   videos: Video,
   others: Folder,
 };
 
-const colorMap: Record<CategoryType, string> = {
+const colorMap: Record<FileCategory, string> = {
   documents: "bg-primary/10 text-primary",
   images: "bg-chart-4/20 text-chart-4",
   videos: "bg-chart-2/20 text-chart-2",
   others: "bg-chart-5/20 text-chart-5",
-};
-
-const formatSize = (bytes: number) => {
-  if (!bytes) return "0 GB";
-  const gb = bytes / 1024 / 1024 / 1024;
-  if (gb >= 1) return `${gb.toFixed(1)} GB`;
-  const mb = bytes / 1024 / 1024;
-  if (mb >= 0.1) return `${mb.toFixed(1)} MB`;
-  const kb = bytes / 1024;
-  return `${kb.toFixed(1)} KB`;
-};
-
-const formatDateTime = (iso: string | null) => {
-  if (!iso) return "--";
-  const date = new Date(iso);
-  return format(date, "dd MMM yyyy, h:mm a");
 };
 
 export default function Overview() {
@@ -86,7 +60,7 @@ export default function Overview() {
   const totalAvailable = data ? formatSize(data.totalAvailable) : "--";
 
   const categories = useMemo(() => {
-    if (!data?.categories) return [] as Category[];
+    if (!data?.categories) return [] as StorageCategory[];
     return data.categories;
   }, [data]);
 

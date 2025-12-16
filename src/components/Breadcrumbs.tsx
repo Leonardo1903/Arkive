@@ -11,11 +11,7 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
-
-type Crumb = {
-  id: string | null;
-  name: string;
-};
+import { Breadcrumb as BreadcrumbType } from "@/types";
 
 type BreadcrumbsProps = {
   currentFolderId: string | null;
@@ -27,7 +23,7 @@ export default function Breadcrumbs({
   userId,
 }: BreadcrumbsProps) {
   const router = useRouter();
-  const [crumbs, setCrumbs] = useState<Crumb[]>([
+  const [crumbs, setCrumbs] = useState<BreadcrumbType[]>([
     { id: null, name: "My Files" },
   ]);
 
@@ -48,7 +44,7 @@ export default function Breadcrumbs({
       return;
     }
 
-    const chain: Crumb[] = [];
+    const chain: BreadcrumbType[] = [];
     let walker: string | null = currentFolderId;
 
     while (walker) {
