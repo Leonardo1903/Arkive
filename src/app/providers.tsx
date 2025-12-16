@@ -18,8 +18,8 @@ export function Providers({ children, themeProps }: ProvidersProps) {
       <ImageKitProvider>
         <NextThemesProvider
           attribute="class"
-          defaultTheme="system"
-          enableSystem
+          defaultTheme="light"
+          enableSystem={false}
           storageKey="arkive-theme"
           {...themeProps}
         >
