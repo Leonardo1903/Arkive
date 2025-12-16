@@ -3,6 +3,7 @@
 import { Button } from "@/components/ui/button";
 import { Cloud, ArrowRight } from "lucide-react";
 import Link from "next/link";
+import { ThemeToggle } from "@/components/ThemeToggle";
 
 export default function Navbar() {
   return (
@@ -15,6 +16,7 @@ export default function Navbar() {
           <span className="text-xl font-bold">Arkive</span>
         </div>
         <div className="flex items-center gap-4">
+          <ThemeToggle />
           <Link href="/sign-in">
             <Button variant="ghost">Sign In</Button>
           </Link>

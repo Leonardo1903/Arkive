@@ -11,6 +11,7 @@ import { useClerk, useUser } from "@clerk/nextjs";
 import axios from "axios";
 import UploadModal from "@/components/UploadModal";
 import CreateFolderModal from "@/components/CreateFolderModal";
+import { ThemeToggle } from "@/components/ThemeToggle";
 import { FileSearchResult, FolderSearchResult } from "@/types";
 
 export default function Header() {
@@ -249,6 +250,7 @@ export default function Header() {
         )}
       </div>
       <div className="flex items-center gap-2">
+        <ThemeToggle />
         <div className="relative" ref={menuRef}>
           <Button
             className="bg-primary hover:bg-primary/90 text-primary-foreground rounded-lg px-6"

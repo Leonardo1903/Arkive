@@ -16,7 +16,13 @@ export function Providers({ children, themeProps }: ProvidersProps) {
   return (
     <ClerkProvider>
       <ImageKitProvider>
-        <NextThemesProvider {...themeProps}>
+        <NextThemesProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          storageKey="arkive-theme"
+          {...themeProps}
+        >
           {children}
           <Toaster />
         </NextThemesProvider>

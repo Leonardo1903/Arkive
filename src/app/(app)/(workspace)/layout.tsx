@@ -1,6 +1,6 @@
 import Sidebar from "@/components/Sidebar";
 import Header from "@/components/Header";
-import { auth, currentUser } from "@clerk/nextjs/server";
+import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 
 interface DashboardLayoutProps {
@@ -16,16 +16,9 @@ export default async function DashboardLayout({
     redirect("/sign-in");
   }
 
-  const user = await currentUser();
-
-  const fullName = user?.fullName ?? "User";
-  const email =
-    user?.primaryEmailAddress?.emailAddress ?? "no-email@placeholder.test";
-  const avatar = user?.imageUrl ?? "";
-
   return (
     <div className="flex h-screen overflow-hidden bg-background">
-      <Sidebar fullName={fullName} email={email} avatar={avatar} />
+      <Sidebar />
       <main className="flex-1 overflow-y-auto">
         <div className="p-6">
           <Header />
@@ -39,3 +32,4 @@ export default async function DashboardLayout({
     </div>
   );
 }
+
