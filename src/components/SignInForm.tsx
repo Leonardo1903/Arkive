@@ -100,15 +100,16 @@ export default function SignInForm() {
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
           <div className="space-y-2">
-            <Label htmlFor="identifier">Email</Label>
+            <Label htmlFor="identifier">Email or Username</Label>
             <div className="flex items-center gap-2">
               <Mail className="h-4 w-4 text-default-500" />
               <Input
                 id="identifier"
-                type="email"
-                placeholder="your.email@example.com"
+                type="text"
+                placeholder="your.email@example.com or username"
                 {...register("identifier")}
                 className="w-full"
+                aria-invalid={!!errors.identifier}
               />
             </div>
             {errors.identifier && (
@@ -129,12 +130,14 @@ export default function SignInForm() {
                   placeholder="••••••••"
                   {...register("password")}
                   className="w-full pr-10"
+                  aria-invalid={!!errors.password}
                 />
                 <Button
                   type="button"
                   variant="ghost"
                   size="icon"
                   className="absolute right-2 top-1/2 -translate-y-1/2 p-1"
+                  aria-label={showPassword ? "Hide password" : "Show password"}
                   onClick={() => setShowPassword(!showPassword)}
                 >
                   {showPassword ? (
