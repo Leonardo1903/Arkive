@@ -31,6 +31,7 @@ import {
 } from "lucide-react";
 import { signUpSchema } from "@/schemas/signUpSchema";
 import VerifyEmailModal from "@/components/VerifyEmailModal";
+import { toast } from "sonner";
 
 export default function SignUpForm() {
   const router = useRouter();
@@ -135,9 +136,28 @@ export default function SignUpForm() {
         await setActive({ session: result.createdSessionId });
 
         // Upload profile image to Clerk after account creation
-        if (profileImageFile && user) {
+        if (profileImageFile) {
           try {
-            await user.setProfileImage({ file: profileImageFile });
+            // Create a FormData object with the file
+            const formData = new FormData();
+            formData.append("file", profileImageFile);
+
+            const response = await fetch(
+              `https://api.clerk.com/v1/users/${result.createdUserId}/profile_image`,
+              {
+                method: "POST",
+                body: formData,
+                headers: {
+                  Authorization: `Bearer ${process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY}`,
+                },
+              }
+            );
+
+            if (response.ok) {
+              toast.success("Profile image uploaded successfully");
+            } else {
+              console.error("Failed to upload profile image to Clerk");
+            }
           } catch (imageError) {
             console.error("Profile image upload error:", imageError);
             // Don't block navigation if image upload fails

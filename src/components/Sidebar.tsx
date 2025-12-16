@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
+import { useUser } from "@clerk/nextjs";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
@@ -10,14 +11,9 @@ import {
   FolderOpen,
   Trash2,
   Star,
+  User as UserIcon,
 } from "lucide-react";
 import Logo from "../../public/Logo.png";
-
-interface Props {
-  fullName: string;
-  avatar: string;
-  email: string;
-}
 
 const navItems = [
   {
@@ -35,11 +31,6 @@ const navItems = [
     name: "Starred",
     icon: Star,
   },
-  // {
-  //   url: "/shared",
-  //   name: "Shared",
-  //   icon: Share2,
-  // },
   {
     url: "/trash",
     name: "Trash",
@@ -47,9 +38,14 @@ const navItems = [
   },
 ];
 
-export default function Sidebar({ fullName, avatar, email }: Props) {
+export default function Sidebar() {
   const pathname = usePathname();
   const router = useRouter();
+  const { user, isLoaded } = useUser();
+
+  const fullName = `${user?.firstName || ""} ${user?.lastName || ""}`.trim();
+  const email = user?.emailAddresses[0]?.emailAddress || "";
+  const avatar = user?.imageUrl || "";
 
   return (
     <aside className="sidebar w-64 h-screen flex flex-col p-6">
@@ -82,22 +78,28 @@ export default function Sidebar({ fullName, avatar, email }: Props) {
       </nav>
 
       <div className="mt-auto pt-6 border-t border-border">
-        <div className="flex items-center gap-3 px-2">
-          <Avatar>
-            <AvatarImage src={avatar} alt={fullName} />
+        <button
+          onClick={() => router.push("/profile")}
+          className="w-full flex items-center gap-3 px-2 py-2 rounded-lg hover:bg-muted transition-colors"
+        >
+          <Avatar className="h-10 w-10">
+            {isLoaded && avatar && <AvatarImage src={avatar} alt={fullName} />}
             <AvatarFallback>
               {fullName
                 .split(" ")
                 .map((n) => n[0])
                 .join("")
-                .toUpperCase()}
+                .toUpperCase() || "U"}
             </AvatarFallback>
           </Avatar>
-          <div className="flex-1 min-w-0">
-            <p className="font-semibold text-sm truncate">{fullName}</p>
+          <div className="flex-1 min-w-0 text-left">
+            <p className="font-semibold text-sm truncate">
+              {fullName || "User"}
+            </p>
             <p className="text-xs text-muted-foreground truncate">{email}</p>
           </div>
-        </div>
+          <UserIcon size={18} className="text-muted-foreground shrink-0" />
+        </button>
       </div>
     </aside>
   );
