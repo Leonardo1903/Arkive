@@ -23,10 +23,10 @@ import {
 import { Button } from "@/components/ui/button";
 import {
   RecentFile,
-  FileIcon,
+  FileCategory,
   iconForExtension,
   colorForIcon,
-  formatShortTime,
+  formatTime,
 } from "@/types";
 
 const getFileIcon = (type: string, colorClass: string) => {
