@@ -4,6 +4,7 @@ import { useEffect, useState, useCallback } from "react";
 import axios from "axios";
 import { useUser } from "@clerk/nextjs";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
@@ -78,36 +79,44 @@ export default function TrashPage() {
   const handleFolderRestore = async (folderId: string) => {
     try {
       await axios.patch(`/api/folders/${folderId}/trash`);
+      toast.success("Folder restored");
       fetchData();
     } catch (err) {
       console.error("Failed to restore folder", err);
+      toast.error("Failed to restore folder");
     }
   };
 
   const handleFolderDelete = async (folderId: string) => {
     try {
       await axios.delete(`/api/folders/${folderId}/delete`);
+      toast.success("Folder permanently deleted");
       fetchData();
     } catch (err) {
       console.error("Failed to permanently delete folder", err);
+      toast.error("Failed to permanently delete folder");
     }
   };
 
   const handleRestore = async (fileId: string) => {
     try {
       await axios.patch(`/api/files/${fileId}/trash`);
+      toast.success("File restored");
       fetchData();
     } catch (err) {
       console.error("Failed to restore file", err);
+      toast.error("Failed to restore file");
     }
   };
 
   const handleDelete = async (fileId: string) => {
     try {
       await axios.delete(`/api/files/${fileId}/delete`);
+      toast.success("File permanently deleted");
       fetchData();
     } catch (err) {
       console.error("Failed to permanently delete file", err);
+      toast.error("Failed to permanently delete file");
     }
   };
 
@@ -115,10 +124,12 @@ export default function TrashPage() {
     try {
       setEmptyingTrash(true);
       await axios.delete("/api/empty-trash");
+      toast.success("Trash emptied successfully");
       fetchData();
     } catch (err) {
       console.error("Failed to empty trash", err);
       setError("Failed to empty trash");
+      toast.error("Failed to empty trash");
     } finally {
       setEmptyingTrash(false);
     }

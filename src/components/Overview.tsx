@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState, useCallback } from "react";
 import axios from "axios";
+import { toast } from "sonner";
 import { Card } from "@/components/ui/card";
 import { FileText, Image, Video, Folder } from "lucide-react";
 import {
@@ -40,6 +41,7 @@ export default function Overview() {
     } catch (err) {
       console.error(err);
       setError("Failed to load storage data");
+      toast.error("Failed to load storage data");
     } finally {
       setLoading(false);
     }

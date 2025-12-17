@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import axios from "axios";
+import { toast } from "sonner";
 import { Card } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import {
@@ -98,18 +99,22 @@ export default function RecentFiles() {
   const handleStar = async (fileId: string) => {
     try {
       await axios.patch(`/api/files/${fileId}/star`);
+      toast.success("File starred");
       fetchRecent();
     } catch (err) {
       console.error("Failed to star file:", err);
+      toast.error("Failed to star file");
     }
   };
 
   const handleTrash = async (fileId: string) => {
     try {
       await axios.patch(`/api/files/${fileId}/trash`);
+      toast.success("File moved to trash");
       fetchRecent();
     } catch (err) {
       console.error("Failed to trash file:", err);
+      toast.error("Failed to move file to trash");
     }
   };
 

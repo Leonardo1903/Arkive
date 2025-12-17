@@ -105,6 +105,7 @@ export default function SignUpForm() {
       });
 
       await signUp.prepareEmailAddressVerification({ strategy: "email_code" });
+      toast.success("Verification code sent to your email");
       setVerifying(true);
     } catch (error) {
       console.error("Sign-up error:", error);
@@ -135,6 +136,8 @@ export default function SignUpForm() {
       if (result.status === "complete") {
         await setActive({ session: result.createdSessionId });
 
+        toast.success("Account created successfully! Welcome to Arkive.");
+
         // Upload profile image to Clerk after account creation
         if (profileImageFile) {
           try {
@@ -157,6 +160,7 @@ export default function SignUpForm() {
               toast.success("Profile image uploaded successfully");
             } else {
               console.error("Failed to upload profile image to Clerk");
+              toast.error("Failed to upload profile image");
             }
           } catch (imageError) {
             console.error("Profile image upload error:", imageError);

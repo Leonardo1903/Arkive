@@ -4,6 +4,7 @@ import { useEffect, useState, useCallback } from "react";
 import axios from "axios";
 import { useUser } from "@clerk/nextjs";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
@@ -87,18 +88,22 @@ export default function StarredPage() {
   const handleFolderStar = async (folderId: string) => {
     try {
       await axios.patch(`/api/folders/${folderId}/star`);
+      toast.success("Folder unstarred");
       fetchData();
     } catch (err) {
       console.error("Failed to unstar folder", err);
+      toast.error("Failed to unstar folder");
     }
   };
 
   const handleFolderTrash = async (folderId: string) => {
     try {
       await axios.patch(`/api/folders/${folderId}/trash`);
+      toast.success("Folder moved to trash");
       fetchData();
     } catch (err) {
       console.error("Failed to trash folder", err);
+      toast.error("Failed to move folder to trash");
     }
   };
 
@@ -111,18 +116,22 @@ export default function StarredPage() {
   const handleStar = async (fileId: string) => {
     try {
       await axios.patch(`/api/files/${fileId}/star`);
+      toast.success("File unstarred");
       fetchData();
     } catch (err) {
       console.error("Failed to unstar file", err);
+      toast.error("Failed to unstar file");
     }
   };
 
   const handleTrash = async (fileId: string) => {
     try {
       await axios.patch(`/api/files/${fileId}/trash`);
+      toast.success("File moved to trash");
       fetchData();
     } catch (err) {
       console.error("Failed to trash file", err);
+      toast.error("Failed to move file to trash");
     }
   };
 
