@@ -1,36 +1,108 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Arkive 🚀
 
-## Getting Started
+![License](https://img.shields.io/badge/license-MIT-blue.svg)
+![Node](https://img.shields.io/badge/node-v18%2B-green.svg)
+![Status](https://img.shields.io/badge/status-active-success.svg)
 
-First, run the development server:
+> **One-liner pitch:** Secure, fast, and collaborative cloud storage with Clerk auth, ImageKit uploads, and streamlined file organization.
 
+---
+
+![App Screenshot](./public/Arkive.png)
+
+
+---
+
+## 🧐 About The Project
+
+**Arkive** is a modern cloud storage web app that lets teams and individuals upload, organize, search, and manage files securely. It solves the pain of scattered storage by combining folders, starring, trash, and search into one streamlined workspace with dark/light themes and responsive UI.
+
+**Key Features:**
+* ✅ **Secure Auth:** Clerk-powered sign-up/sign-in with username support and profile images.
+* ✅ **File & Folder Ops:** Upload files/folders, move, rename, star, trash, and restore.
+* ✅ **Search & Recent:** Fast search endpoint plus recent files view for quick access.
+* ✅ **Trash & Empty Trash:** Soft-delete with bulk empty and restore flows.
+* ✅ **Dark/Light Mode:** next-themes toggle with persisted preference.
+* ✅ **Responsive UI:** shadcn/ui + Tailwind for a polished, adaptive experience.
+
+---
+
+## 🛠️ Tech Stack
+
+| Layer | Technologies |
+| :--- | :--- |
+| **Frontend** | Next.js 15 (App Router), React, TypeScript, Tailwind CSS, shadcn/ui |
+| **Auth** | Clerk (Hosted) |
+| **Storage & Media** | ImageKit (uploads/URL signing), Next.js API routes |
+| **Database** | PostgreSQL (Neon) with Drizzle ORM |
+| **Theming & UX** | next-themes, lucide-react icons, sonner toasts |
+| **Tooling** | ESLint, Prettier, npm/pnpm scripts |
+
+---
+
+## 📚 Engineering Docs
+
+Docs folder is coming soon. For now, key entry points:
+* **API routes:** `src/app/api/*` (files, folders, search, upload, trash, star, delete)
+* **Schemas:** `src/lib/schema.ts` and Zod schemas in `src/schemas/*`
+* **UI:** Components in `src/components/*` (Header, Sidebar, Modals, ThemeToggle)
+* **Types:** Centralized in `src/types/*`
+
+---
+
+## ⚡ Quick Start
+
+**1) Clone the repo**
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+git clone https://github.com/yourusername/arkive.git
+cd arkive
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+**2) Install dependencies**
+```bash
+npm install
+# or
+pnpm install
+```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+**3) Set up environment variables**
+```bash
+cp .env.sample .env
+# then fill in your Clerk, ImageKit, and DATABASE_URL values
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+**4) Run the development server**
+```bash
+npm run dev
+```
+Visit http://localhost:3000
 
-## Learn More
+**Optional checks**
+```bash
+npm run lint
+```
 
-To learn more about Next.js, take a look at the following resources:
+---
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## 🤝 Contributing
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Contributions are welcome! Please open an issue first to discuss what you’d like to change.
+1. Fork the project
+2. Create your feature branch: `git checkout -b feature/amazing`
+3. Commit your changes: `git commit -m "Add amazing feature"`
+4. Push to the branch: `git push origin feature/amazing`
+5. Open a Pull Request
 
-## Deploy on Vercel
+---
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## 👤 Author
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Leonardo Fernandes
+- GitHub: [@Leonardo1903](https://github.com/Leonardo1903)
+- LinkedIn: [leonardofernandes1903](https://www.linkedin.com/in/leonardofernandes1903/)
+
+---
+
+## 📝 License
+
+This project is licensed under the MIT License. See the LICENSE file for details.
