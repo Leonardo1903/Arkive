@@ -29,9 +29,7 @@ export default function Hero() {
           <h1 className="mb-6 font-serif text-5xl font-bold tracking-tight md:text-6xl lg:text-7xl">
             Your Files,
             <br />
-            <span className="bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent animate-[gradient_3s_ease-in-out_infinite]">
-              Perfectly Organized
-            </span>
+            <span className="text-primary">Perfectly Organized</span>
           </h1>
           <p className="mx-auto mb-10 max-w-2xl text-lg text-muted-foreground md:text-xl">
             Experience cloud storage reimagined. Secure, intuitive, and
@@ -77,22 +75,34 @@ export default function Hero() {
       {/* Floating Elements */}
       <div className="pointer-events-none absolute left-[5%] top-[20%] hidden lg:block animate-[float_6s_ease-in-out_infinite]">
         <div className="rounded-2xl bg-primary/30 p-6 shadow-xl backdrop-blur-sm border-2 border-primary/50">
-          <FolderOpen className="h-12 w-12 text-primary drop-shadow-2xl" strokeWidth={2.5} />
+          <FolderOpen
+            className="h-12 w-12 text-primary drop-shadow-2xl"
+            strokeWidth={2.5}
+          />
         </div>
       </div>
       <div className="pointer-events-none absolute right-[5%] top-[25%] hidden lg:block animate-[float_8s_ease-in-out_infinite_2s]">
         <div className="rounded-2xl bg-primary/30 p-6 shadow-xl backdrop-blur-sm border-2 border-primary/50">
-          <Upload className="h-12 w-12 text-primary drop-shadow-2xl" strokeWidth={2.5} />
+          <Upload
+            className="h-12 w-12 text-primary drop-shadow-2xl"
+            strokeWidth={2.5}
+          />
         </div>
       </div>
       <div className="pointer-events-none absolute left-[10%] bottom-[15%] hidden md:block animate-[float_7s_ease-in-out_infinite_1s]">
         <div className="rounded-2xl bg-chart-4/30 p-5 shadow-xl backdrop-blur-sm border-2 border-chart-4/50">
-          <Shield className="h-10 w-10 text-chart-4 drop-shadow-2xl" strokeWidth={2.5} />
+          <Shield
+            className="h-10 w-10 text-chart-4 drop-shadow-2xl"
+            strokeWidth={2.5}
+          />
         </div>
       </div>
       <div className="pointer-events-none absolute right-[8%] bottom-[20%] hidden md:block animate-[float_9s_ease-in-out_infinite_3s]">
         <div className="rounded-2xl bg-chart-2/30 p-5 shadow-xl backdrop-blur-sm border-2 border-chart-2/50">
-          <Zap className="h-10 w-10 text-chart-2 drop-shadow-2xl" strokeWidth={2.5} />
+          <Zap
+            className="h-10 w-10 text-chart-2 drop-shadow-2xl"
+            strokeWidth={2.5}
+          />
         </div>
       </div>
     </section>

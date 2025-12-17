@@ -38,13 +38,11 @@ export default function ProfilePage() {
     null
   );
 
-  // Form state
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
   });
 
-  // Initialize form with user data
   useEffect(() => {
     if (user) {
       setFormData({
@@ -74,14 +72,12 @@ export default function ProfilePage() {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    // Validate file size (2MB)
     if (file.size > 2 * 1024 * 1024) {
       setError("Image size must be less than 2MB");
       toast.error("Image size must be less than 2MB");
       return;
     }
 
-    // Validate file type
     if (!file.type.startsWith("image/")) {
       setError("Please upload an image file");
       toast.error("Please upload an image file");
@@ -162,7 +158,6 @@ export default function ProfilePage() {
             </div>
           )}
 
-          {/* Profile Image Section */}
           <div className="mb-8">
             <h3 className="text-lg font-semibold mb-4">Profile Picture</h3>
             <div className="flex flex-col items-center gap-6">
@@ -213,7 +208,6 @@ export default function ProfilePage() {
             <h3 className="text-lg font-semibold">Personal Information</h3>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {/* First Name */}
               <div className="space-y-2">
                 <Label htmlFor="firstName">First Name</Label>
                 <Input
@@ -227,7 +221,6 @@ export default function ProfilePage() {
                 />
               </div>
 
-              {/* Last Name */}
               <div className="space-y-2">
                 <Label htmlFor="lastName">Last Name</Label>
                 <Input
@@ -242,7 +235,6 @@ export default function ProfilePage() {
               </div>
             </div>
 
-            {/* Username (Read-only) */}
             <div className="space-y-2">
               <Label htmlFor="username" className="flex items-center gap-2">
                 <AtSign className="w-4 h-4" />
@@ -260,7 +252,6 @@ export default function ProfilePage() {
               </p>
             </div>
 
-            {/* Email (Read-only) */}
             <div className="space-y-2">
               <Label htmlFor="email" className="flex items-center gap-2">
                 <Mail className="w-4 h-4" />

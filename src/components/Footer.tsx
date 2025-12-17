@@ -1,6 +1,8 @@
 import { Separator } from "@/components/ui/separator";
 import { Cloud, Shield, Lock } from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
+import Logo from "@/../public/Logo.png";
 
 export default function Footer() {
   return (
@@ -9,10 +11,13 @@ export default function Footer() {
         <div className="grid gap-8 md:grid-cols-4">
           <div>
             <div className="mb-4 flex items-center gap-2">
-              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
-                <Cloud className="h-5 w-5" />
-              </div>
-              <span className="text-xl font-bold">Arkive</span>
+             <Image
+                src={Logo}
+                alt="Arkive Logo"
+                width={100}
+                height={40}
+                className="object-contain"
+              />
             </div>
             <p className="text-sm text-muted-foreground">
               Secure cloud storage for everyone
