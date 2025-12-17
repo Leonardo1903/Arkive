@@ -42,7 +42,13 @@
 
 ## 📚 Engineering Docs
 
-Docs folder is coming soon. For now, key entry points:
+Comprehensive documentation is available in the `/docs` folder:
+* **[PRD.md](./docs/PRD.md)** - Product Requirements Document with user stories, personas, and success metrics
+* **[ARCHITECTURE.md](./docs/ARCHITECTURE.md)** - System architecture, tech stack decisions, and database schema
+* **[API.md](./docs/API.md)** - Complete REST API reference with request/response examples
+* **[DEPLOYMENT.md](./docs/DEPLOYMENT.md)** - Deployment guide, environment setup, and troubleshooting
+
+**Key Code Entry Points:**
 * **API routes:** `src/app/api/*` (files, folders, search, upload, trash, star, delete)
 * **Schemas:** `src/lib/schema.ts` and Zod schemas in `src/schemas/*`
 * **UI:** Components in `src/components/*` (Header, Sidebar, Modals, ThemeToggle)
@@ -54,7 +60,7 @@ Docs folder is coming soon. For now, key entry points:
 
 **1) Clone the repo**
 ```bash
-git clone https://github.com/yourusername/arkive.git
+git clone https://github.com/Leonardo1903/arkive.git
 cd arkive
 ```
 
