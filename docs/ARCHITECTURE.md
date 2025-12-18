@@ -2,7 +2,7 @@
 
 | Project | **Version** | **Last Updated** |
 | :--- | :--- | :--- |
-| Arkive (Secure Cloud Storage Platform) | 1.0 | December 17, 2025 |
+| Arkive | 1.0 | December 17, 2025 |
 
 ---
 
